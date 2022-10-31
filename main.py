@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -7,18 +8,22 @@ app = FastAPI()
 async def root():
     return {"message": "FastAPI Test."}
 
-@app.get("/{nim}")
-async def nim_mahasiswa(nim: int):
-    if nim < 10000000 or nim > 19999999:
-        return {"message": "NIM tidak ada!"}
-    else:
-        return {"nim mahasiswa": nim}
+# Bikin class, isinya bebas.
+class student(BaseModel):
+    nim: int
+    nama: str
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+# Bikin Array buat menampung class tadi. Nanti fungsi POST akan meng-append arraynya.
+student_list = []
 
-@app.get("/{nim}/{mahasiswa}")
-async def show_mahasiswa(nim: int, mahasiswa: str):
-    return {"nim": {nim}, "nama": {mahasiswa}}
-    
+
+@app.post("/student")
+async def add_student(model: student): #Bikin variabel parameter baru yang JENISNYA adalah CLASS YANG UDAH DIBUAT TADI.
+    student_list.append(model)
+    return {"message": "Success"}
+
+@app.get("/student")
+async def get_student():
+    return {"student": student_list}
+
+
